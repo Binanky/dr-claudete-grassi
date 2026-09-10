@@ -1,0 +1,91 @@
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  openId VARCHAR(64) NOT NULL UNIQUE,
+  name TEXT NULL,
+  email VARCHAR(320) NULL,
+  loginMethod VARCHAR(64) NULL,
+  role ENUM('user','admin') NOT NULL DEFAULT 'user',
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  lastSignedIn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS services (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  description TEXT NOT NULL,
+  durationMinutes INT NOT NULL DEFAULT 60,
+  priceCents INT NOT NULL,
+  displayOrder INT NOT NULL DEFAULT 0,
+  isActive BOOLEAN NOT NULL DEFAULT TRUE,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS clients (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  email VARCHAR(320) NOT NULL,
+  phone VARCHAR(32) NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY clients_email_unique (email),
+  KEY clients_phone_idx (phone)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS weekly_availability (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  weekday INT NOT NULL,
+  label VARCHAR(20) NOT NULL,
+  isActive BOOLEAN NOT NULL DEFAULT FALSE,
+  startTime VARCHAR(5) NOT NULL,
+  endTime VARCHAR(5) NOT NULL,
+  slotMinutes INT NOT NULL DEFAULT 60,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY weekly_availability_weekday_unique (weekday)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS appointments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  clientId INT NOT NULL,
+  serviceId INT NOT NULL,
+  scheduledAt BIGINT NOT NULL,
+  status ENUM('pending','confirmed','cancelled','completed') NOT NULL DEFAULT 'pending',
+  clientMessage TEXT NULL,
+  internalNotes TEXT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY appointments_scheduled_at_idx (scheduledAt),
+  KEY appointments_client_idx (clientId),
+  KEY appointments_status_idx (status),
+  CONSTRAINT appointments_client_fk FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
+  CONSTRAINT appointments_service_fk FOREIGN KEY (serviceId) REFERENCES services(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS appointment_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  appointmentId INT NOT NULL,
+  tokenHash VARCHAR(64) NOT NULL,
+  issuedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  revokedAt TIMESTAMP NULL,
+  UNIQUE KEY appointment_tokens_hash_unique (tokenHash),
+  KEY appointment_tokens_appointment_idx (appointmentId),
+  CONSTRAINT appointment_tokens_appointment_fk FOREIGN KEY (appointmentId) REFERENCES appointments(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS appointment_events (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  appointmentId INT NOT NULL,
+  eventType VARCHAR(40) NOT NULL,
+  description TEXT NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY appointment_events_appointment_idx (appointmentId),
+  CONSTRAINT appointment_events_appointment_fk FOREIGN KEY (appointmentId) REFERENCES appointments(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS site_contact_messages (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(160) NOT NULL,
+  phone VARCHAR(32) NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
