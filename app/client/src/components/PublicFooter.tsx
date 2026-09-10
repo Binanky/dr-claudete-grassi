@@ -1,0 +1,7 @@
+import { Instagram, LockKeyhole } from "lucide-react";
+import { Link } from "wouter";
+import { BrandMark } from "./PublicHeader";
+
+export function PublicFooter() {
+  return <footer className="bg-[#31241f] px-5 py-12 text-white"><div className="container grid gap-10 md:grid-cols-[1.3fr_.7fr_.7fr]"><div><BrandMark light /><p className="mt-5 max-w-sm text-sm leading-7 text-white/55">Psicoterapia com escuta, presença e estratégias que respeitam a sua história, no seu tempo.</p></div><div><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#d2b2a1]">Navegue</p><div className="mt-5 flex flex-col gap-3 text-sm text-white/70"><Link href="/#sobre">A Dra. Claudete</Link><Link href="/#especialidades">Especialidades</Link><Link href="/agendar">Solicitar horário</Link></div></div><div><p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-[#d2b2a1]">Contato</p><div className="mt-5 space-y-3 text-sm text-white/70"><p>Pato Branco, PR</p><a href="https://www.instagram.com/grassiclaudete/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2"><Instagram size={15} /> @grassiclaudete</a><Link href="/painel" className="inline-flex items-center gap-2 text-[#efd9cc]"><LockKeyhole size={14} /> Painel profissional</Link></div></div></div><div className="container mt-10 border-t border-white/10 pt-5 text-[10px] font-bold uppercase tracking-[.12em] text-white/35">© 2026 Dr. Claudete Grassi · Psicóloga · CRP 08/22767</div></footer>;
+}
